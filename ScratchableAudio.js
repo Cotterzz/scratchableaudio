@@ -1,16 +1,9 @@
 export class ScratchableAudio {
-
-	audioContext;
-	customWaveNode;
-	rawAudio;
-	mp3Data;
-	totalTime;
+	audioContext;customWaveNode;rawAudio;mp3Data;totalTime;rotationTime;rotationFunction;
 	rotations = 4;
-	rotationTime;
-	rotationFunction;
-	holdingPlayHead = false;
 	holdingVelocity = 0;
 	holdingOldPosition = 0;
+	holdingPlayHead = false;
 	constructor(data, rotatorFunction){
 		this.mp3Data = data;
 		this.rotationFunction = rotatorFunction;
@@ -45,13 +38,11 @@ export class ScratchableAudio {
 	}
 
 	async setUpAudio(){
-	
 		await this.audioContext.audioWorklet.addModule('CustomWaveProcessor.js');
 		this.customWaveNode = new AudioWorkletNode(this.audioContext, 'CustomWaveProcessor')
 		this.customWaveNode.connect(this.audioContext.destination);
 		this.customWaveNode.port.onmessage = (e) => {this.setFrame(e.data)};
 		this.sendData({label:'raw', rawdata:this.rawAudio.getChannelData(0)});
-
 	}
 
 	async getFile(audioContext, filepath) {
@@ -62,7 +53,6 @@ export class ScratchableAudio {
 	}
 
 	setFrame(samples){
-
 		var currentTime = samples/48000;
 		var angleTo = 360-(360*(currentTime/this.rotationTime));
 		this.rotationFunction(angleTo)
